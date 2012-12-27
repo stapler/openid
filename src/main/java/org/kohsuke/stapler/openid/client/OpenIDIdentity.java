@@ -3,6 +3,7 @@ package org.kohsuke.stapler.openid.client;
 import org.openid4java.discovery.DiscoveryException;
 import org.openid4java.message.AuthSuccess;
 import org.openid4java.message.MessageException;
+import org.openid4java.message.ax.FetchResponse;
 import org.openid4java.message.sreg.SRegMessage;
 import org.openid4java.message.sreg.SRegResponse;
 
@@ -32,15 +33,56 @@ public class OpenIDIdentity {
         }
     }
 
+    public String getSRegAttribute(String attributeName) {
+        try {
+            SRegResponse sr = (SRegResponse)auth.getExtension(SRegMessage.OPENID_NS_SREG);
+            if (sr==null)   return null;
+            return sr.getAttributeValue(attributeName);
+        } catch (MessageException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public String getAxAttribute(String name) {
+        try {
+            FetchResponse fr = (FetchResponse)auth.getExtension(SRegMessage.OPENID_NS_SREG);
+            return fr.getAttributeValue(name);
+        } catch (MessageException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Gets the nick name.
      */
     public String getNick() {
-        try {
-            SRegResponse sr = (SRegResponse)auth.getExtension(SRegMessage.OPENID_NS_SREG);
-            return sr.getAttributeValue("nickname");
-        } catch (MessageException e) {
-            throw new IllegalStateException(e);
-        }
+        String v = getSRegAttribute("nickname");
+        if (v==null)
+            v = getAxAttribute("http://axschema.org/namePerson/friendly")
+        return v;
+    }
+
+    /**
+     * Gets the e-mail address.
+     */
+    public String getEmail() {
+        String v = getAxAttribute("http://axschema.org/contact/email");
+        if (v==null)
+            v = getAxAttribute("http://schema.openid.net/contact/email");
+        return v;
+    }
+
+    /**
+     * Gets the last name.
+     */
+    public String getLastName() {
+        return getAxAttribute("http://axschema.org/namePerson/last");
+    }
+
+    /**
+     * Gets the first name.
+     */
+    public String getFirstName() {
+        return getAxAttribute("http://axschema.org/namePerson/first");
     }
 }
