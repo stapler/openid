@@ -3,6 +3,7 @@ package org.kohsuke.stapler.openid.server;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.openid4java.association.AssociationException;
 import org.openid4java.message.AuthRequest;
 import org.openid4java.message.AuthSuccess;
@@ -19,12 +20,14 @@ import org.openid4java.message.sreg.SRegResponse;
 import org.openid4java.server.ServerException;
 import org.openid4java.server.ServerManager;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Represents an in-flight OpenID authentication sequence.
@@ -169,40 +172,62 @@ public abstract class Session {
         AuthRequest authReq = AuthRequest.createAuthRequest(requestp, manager.getRealmVerifier());
         if (authReq.hasExtension(AxMessage.OPENID_NS_AX)) {
             MessageExtension ext = authReq.getExtension(AxMessage.OPENID_NS_AX);
-            if (ext instanceof FetchRequest) {
-                FetchRequest fetchReq = (FetchRequest) ext;
-                FetchResponse fr = FetchResponse.createFetchResponse();
-
-                for (Map.Entry<String,String> e : ((Map<String,String>)fetchReq.getAttributes()).entrySet()) {
-                    if (e.getValue().equals("http://axschema.org/contact/email")
-                    ||  e.getValue().equals("http://schema.openid.net/contact/email"))
-                        fr.addAttribute(e.getKey(),e.getValue(), identity.getEmail());
-                    if (e.getValue().equals("http://axschema.org/namePerson/friendly"))
-                        fr.addAttribute(e.getKey(),e.getValue(), identity.getNick());
-                    if (e.getValue().equals("http://axschema.org/namePerson/first"))
-                        fr.addAttribute(e.getKey(),e.getValue(), identity.getFirstName());
-                    if (e.getValue().equals("http://axschema.org/namePerson/last"))
-                        fr.addAttribute(e.getKey(),e.getValue(), identity.getLastName());
-                    // TODO: we probably need to add more
-                }
-
-                rsp.addExtension(fr);
-            }
+            if (ext instanceof FetchRequest)
+                rsp.addExtension(respondToAx((FetchRequest) ext));
         }
         if (authReq.hasExtension(SRegMessage.OPENID_NS_SREG)) {
             MessageExtension ext = authReq.getExtension(SRegMessage.OPENID_NS_SREG);
-            if (ext instanceof SRegRequest) {
-                SRegRequest req = (SRegRequest) ext;
-                SRegResponse srsp = SRegResponse.createFetchResponse();
-
-                for (String name : (List<String>)req.getAttributes()) {
-                    if (name.equals("nickname"))
-                        srsp.addAttribute(name,identity.getNick());
-                    // TODO: we probably need to add more
-                }
-
-                rsp.addExtension(srsp);
-            }
+            if (ext instanceof SRegRequest)
+                rsp.addExtension(respondToSReg((SRegRequest) ext));
         }
+    }
+
+    protected SRegResponse respondToSReg(SRegRequest req) throws MessageException {
+        SRegResponse srsp = SRegResponse.createFetchResponse();
+
+        for (String name : (List<String>)req.getAttributes()) {
+            if (name.equals("nickname"))
+                addSRegResponse(srsp, name, identity.getNick());
+            // TODO: we probably need to add more
+        }
+        return srsp;
+    }
+
+    private void addSRegResponse(SRegResponse srsp, String name, String value) throws MessageException {
+        if (value!=null)
+            srsp.addAttribute(name, value);
+    }
+
+    protected FetchResponse respondToAx(FetchRequest req) throws MessageException {
+        FetchResponse fr = FetchResponse.createFetchResponse();
+
+        for (Map.Entry<String,String> e : ((Map<String,String>) req.getAttributes()).entrySet()) {
+            if (e.getValue().equals("http://axschema.org/contact/email")
+            ||  e.getValue().equals("http://schema.openid.net/contact/email"))
+                addAxResponse(fr, e, identity.getEmail());
+            if (e.getValue().equals("http://axschema.org/namePerson/friendly"))
+                addAxResponse(fr, e, identity.getNick());
+            if (e.getValue().equals("http://axschema.org/namePerson/first"))
+                addAxResponse(fr, e, identity.getFirstName());
+            if (e.getValue().equals("http://axschema.org/namePerson/last"))
+                addAxResponse(fr, e, identity.getLastName());
+            // TODO: we probably need to add more
+        }
+        return fr;
+    }
+
+    private void addAxResponse(FetchResponse fr, Entry<String, String> e, String v) throws MessageException {
+        if (v!=null)
+            fr.addAttribute(e.getKey(),e.getValue(), v);
+    }
+
+    /**
+     * "/~USERID" is mapped to OpenID.
+     */
+    public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        if (req.getRestOfPath().startsWith("/~"))
+            req.getView(server,"xrds.jelly").forward(req,rsp);
+        else
+            rsp.setStatus(rsp.SC_NOT_FOUND);
     }
 }
