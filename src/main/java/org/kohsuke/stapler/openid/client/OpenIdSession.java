@@ -35,7 +35,7 @@ public class OpenIdSession implements Serializable  {
     /**
      * Authenticated identity.
      */
-    private AuthSuccess identity;
+    private OpenIDIdentity identity;
 
     /**
      * @param openid
@@ -56,7 +56,7 @@ public class OpenIdSession implements Serializable  {
      * If the user is already authenticated, return the identity information.
      * Otherwise start an authentication session (by throwing {@link HttpResponse}.)
      */
-    public AuthSuccess authenticate() {
+    public OpenIDIdentity authenticate() {
         if (identity==null)
             commence();     // this redirects the user and will never return
         return identity;
@@ -103,7 +103,7 @@ public class OpenIdSession implements Serializable  {
         if (verified == null)
             throw HttpResponses.error(500,"Failed to login: " + verification.getStatusMsg());
 
-        this.identity = (AuthSuccess) verification.getAuthResponse();
+        this.identity = new OpenIDIdentity((AuthSuccess) verification.getAuthResponse());
 
         return HttpResponses.redirectTo(from);
     }
