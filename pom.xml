@@ -26,8 +26,8 @@
   </dependencies>
 
   <scm>
-    <connection>scm:git:git://github.com/stapler/${project.artifactId}.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/stapler/${project.artifactId}.git</developerConnection>
+    <connection>scm:git:git://github.com/stapler/openid-server.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/stapler/openid-server.git</developerConnection>
     <url>https://github.com/stapler/${project.artifactId}</url>
   </scm>
 
