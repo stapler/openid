@@ -2,9 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kohsuke.stapler</groupId>
-  <artifactId>stapler-openid-server</artifactId>
+  <artifactId>stapler-openid</artifactId>
   <version>1.1-SNAPSHOT</version>
-  <name>OpenID server-side mode</name>
+  <name>OpenID code for Stapler</name>
+  <description>Glue between Stapler and openid4java</description>
 
   <dependencies>
     <dependency>
@@ -26,9 +27,9 @@
   </dependencies>
 
   <scm>
-    <connection>scm:git:git://github.com/stapler/openid-server.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/stapler/openid-server.git</developerConnection>
-    <url>https://github.com/stapler/${project.artifactId}</url>
+    <connection>scm:git:git://github.com/stapler/openid.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/stapler/openid.git</developerConnection>
+    <url>https://github.com/stapler/openid</url>
   </scm>
 
   <distributionManagement>
