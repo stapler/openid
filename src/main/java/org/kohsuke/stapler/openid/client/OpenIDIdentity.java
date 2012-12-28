@@ -36,6 +36,7 @@ public class OpenIDIdentity {
 
     public String getSRegAttribute(String attributeName) {
         try {
+            if (!auth.hasExtension(SRegMessage.OPENID_NS_SREG)) return null;
             SRegResponse sr = (SRegResponse)auth.getExtension(SRegMessage.OPENID_NS_SREG);
             if (sr==null)   return null;
             return sr.getAttributeValue(attributeName);
@@ -46,6 +47,7 @@ public class OpenIDIdentity {
 
     public String getAxAttribute(String name) {
         try {
+            if (!auth.hasExtension(AxMessage.OPENID_NS_AX)) return null;
             FetchResponse fr = (FetchResponse)auth.getExtension(AxMessage.OPENID_NS_AX);
             return fr.getAttributeValue(name);
         } catch (MessageException e) {
