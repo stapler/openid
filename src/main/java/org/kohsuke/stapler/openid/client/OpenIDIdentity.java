@@ -3,6 +3,7 @@ package org.kohsuke.stapler.openid.client;
 import org.openid4java.discovery.DiscoveryException;
 import org.openid4java.message.AuthSuccess;
 import org.openid4java.message.MessageException;
+import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchResponse;
 import org.openid4java.message.sreg.SRegMessage;
 import org.openid4java.message.sreg.SRegResponse;
@@ -45,7 +46,7 @@ public class OpenIDIdentity {
 
     public String getAxAttribute(String name) {
         try {
-            FetchResponse fr = (FetchResponse)auth.getExtension(SRegMessage.OPENID_NS_SREG);
+            FetchResponse fr = (FetchResponse)auth.getExtension(AxMessage.OPENID_NS_AX);
             return fr.getAttributeValue(name);
         } catch (MessageException e) {
             throw new IllegalStateException(e);
