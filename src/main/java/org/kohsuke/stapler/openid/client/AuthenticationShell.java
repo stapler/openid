@@ -10,7 +10,6 @@ import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.consumer.InMemoryConsumerAssociationStore;
 import org.openid4java.consumer.InMemoryNonceVerifier;
-import org.openid4java.message.AuthSuccess;
 
 import java.io.IOException;
 
@@ -26,7 +25,7 @@ import java.io.IOException;
 public abstract class AuthenticationShell implements StaplerFallback {
     private final ConsumerManager manager;
     private final Object delegate;
-    public final AttributeKey<AuthSuccess> key = AttributeKey.sessionScoped();
+    public final AttributeKey<OpenIDIdentity> key = AttributeKey.sessionScoped();
 
     public AuthenticationShell(Object delegate) throws ConsumerException {
         this.delegate = delegate;
@@ -48,6 +47,10 @@ public abstract class AuthenticationShell implements StaplerFallback {
      */
     public OpenIDSession getOpenid() {
         return currentSession();
+    }
+
+    public OpenIDIdentity authenticate() {
+        return currentSession().authenticate();
     }
 
     private OpenIDSession currentSession() {
