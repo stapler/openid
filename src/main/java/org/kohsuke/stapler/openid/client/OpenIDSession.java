@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-public class OpenIdSession implements Serializable  {
+public class OpenIDSession implements Serializable  {
     // fake serializable just to make Tomcat happy
     private transient final ConsumerManager manager;
     private transient final DiscoveryInformation endpoint;
@@ -41,12 +41,12 @@ public class OpenIdSession implements Serializable  {
      * @param openid
      *      The identity that the user has claimed, which we are going to validate.
      * @param thisUrl
-     *      URL that this {@link OpenIdSession} object is mapped to. Used to construct
+     *      URL that this {@link OpenIDSession} object is mapped to. Used to construct
      *      the URL to bring the user back to. If this URL starts with '/', it's interpreted as
      *      relative to the context path. Otherwise it's assumed to be the absolute URL. It shouldn't
      *      end with '/'.
      */
-    public OpenIdSession(ConsumerManager manager, String openid, String thisUrl) throws OpenIDException, IOException {
+    public OpenIDSession(ConsumerManager manager, String openid, String thisUrl) throws OpenIDException, IOException {
         this.manager = manager;
 
         List discoveries = manager.discover(openid);
@@ -121,7 +121,7 @@ public class OpenIdSession implements Serializable  {
         return HttpResponses.redirectTo(from);
     }
 
-    public static final AttributeKey<OpenIdSession> KEY = AttributeKey.sessionScoped();
+    public static final AttributeKey<OpenIDSession> KEY = AttributeKey.sessionScoped();
 
     private static final long serialVersionUID = 1L;
 }

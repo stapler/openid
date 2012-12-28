@@ -46,16 +46,16 @@ public abstract class AuthenticationShell implements StaplerFallback {
     /**
      * Maps the login session to URL.
      */
-    public OpenIdSession getOpenid() {
+    public OpenIDSession getOpenid() {
         return currentSession();
     }
 
-    private OpenIdSession currentSession() {
+    private OpenIDSession currentSession() {
         StaplerRequest req = Stapler.getCurrentRequest();
-        OpenIdSession o = OpenIdSession.KEY.get(req);
+        OpenIDSession o = OpenIDSession.KEY.get(req);
         if (o==null)
             try {
-                OpenIdSession.KEY.set(req, o = new OpenIdSession(manager,
+                OpenIDSession.KEY.set(req, o = new OpenIDSession(manager,
                         getClaimedIdentity(req), req.findAncestor(this).getUrl()+"/openid/"));
             } catch (OpenIDException e) {
                 throw HttpResponses.error(e);
