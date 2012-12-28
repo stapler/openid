@@ -42,14 +42,27 @@ public class OpenIdSession implements Serializable  {
      *      The identity that the user has claimed, which we are going to validate.
      * @param thisUrl
      *      URL that this {@link OpenIdSession} object is mapped to. Used to construct
-     *      the URL to bring the user back to.
+     *      the URL to bring the user back to. If this URL starts with '/', it's interpreted as
+     *      relative to the context path. Otherwise it's assumed to be the absolute URL. It shouldn't
+     *      end with '/'.
      */
     public OpenIdSession(ConsumerManager manager, String openid, String thisUrl) throws OpenIDException, IOException {
         this.manager = manager;
 
         List discoveries = manager.discover(openid);
         endpoint = manager.associate(discoveries);
-        finishUrl = thisUrl+"/finishLogin";
+
+        if (thisUrl.startsWith("/")) {
+            // relative to context path
+            StaplerRequest req = Stapler.getCurrentRequest();
+            StringBuffer buf = req.getRequestURL();
+            buf.setLength(buf.length() - req.getRequestURI().length());
+            finishUrl = buf+req.getContextPath()+thisUrl+"/finishLogin";
+        } else {
+            // assume absolute path
+            finishUrl = thisUrl+"/finishLogin";
+        }
+
     }
 
     /**

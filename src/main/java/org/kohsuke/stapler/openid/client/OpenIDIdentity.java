@@ -58,7 +58,7 @@ public class OpenIDIdentity {
     public String getNick() {
         String v = getSRegAttribute("nickname");
         if (v==null)
-            v = getAxAttribute("http://axschema.org/namePerson/friendly")
+            v = getAxAttribute("http://axschema.org/namePerson/friendly");
         return v;
     }
 
